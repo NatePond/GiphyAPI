@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Favorite Animal Memes</title>
+  <style type="text/css">
+  html {
+    background-image: url("https://natepond.github.io/bootstrap/css/images/background.png");
+    color: green;
+    font-family: helvetica;
+  },
+  button,
+  div,
+  form,
+  input {
+    margin: 10px;
+  }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Animal Search</h1>
+    <form id="animal-form">
+      <label for="animal-input">Add a Animal Meme Bro</label>
+      <input type="text" id="animal-input">
+      <input id="add-animal" type="submit" value="Add a Animal Meme Bro">
+    </form>
+    <div id="animals-view">
+    </div>
+    <div id="gifs-appear-here">
+    </div>
+</body>
+<script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
+<script type="text/javascript">
+var animals = ["Pepe", "Pedo Bear", "Trash Dove", "Doge", "Grumpy Cat"];
+
+function renderButtons() {
+  $("#animals-view").empty();
+  for (var i = 0; i < animals.length; i++) {
+    var a = $("<button>");
+    a.addClass("animal");
+    a.attr("data-animal", animals[i]);
+    a.attr("data-name", animals[i]);
+    a.text(animals[i]);
+    $("#animals-view").append(a);
+    a.attr("data-animal", animals[i]);
+  }
+  $("button").on("click", function() {
+    $("#gifs-appear-here").empty()
+    var animal = $(this).attr("data-animal");
+    console.log(this)
+    var queryURL = "http://api.giphy.com/v1/gifs/search?q=" +
+      animal + "&api_key=dc6zaTOxFJmzC&limit=10";
+    $.ajax({
+        url: queryURL,
+        method: "GET"
+      })
+      .done(function(response) {
+        console.log(queryURL);
+        console.log(response);
+        var results = response.data;
+        for (var i = 0; i < results.length; i++) {
+          var animalDiv = $("<div>");
+          var animalImage = $("<img>");
+          var tar = results[i].images.fixed_height.url
+          var zar = tar.substring(0, tar.length - 4) + "_s.gif"
+          animalImage.attr("src", zar);
+          animalImage.attr("data-still", zar);
+          animalImage.attr("data-animate", results[i].images.fixed_height.url);
+          animalImage.attr("data-state", "still")
+          animalImage.attr("class", "gif")
+          animalImage.attr("style", "float: left; padding: 5px;")
+          animalDiv.append(animalImage);
+          $("#gifs-appear-here").prepend(animalDiv);
+        }
+        $(".gif").click(function() {
+          var state = $(this).attr("data-state");
+          if (state === "still") {
+            $(this).attr("src", $(this).attr("data-animate"));
+            $(this).attr("data-state", "animate");
+          } else {
+            $(this).attr("src", $(this).attr("data-still"));
+            $(this).attr("data-state", "still");
+          }
+        });
+      });
+  });
+}
+$("#add-animal").on("click", function(event) {
+  event.preventDefault();
+  var animal = $("#animal-input").val().trim();
+  animals.push(animal);
+  renderButtons();
+});
+renderButtons();
+</script>
+
+</html>
